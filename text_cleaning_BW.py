@@ -3,12 +3,28 @@ import re
 
 f = open("v1.txt", 'r')
 
+def snippetyielder():
 
-#running headers regexes: this regex works in Pythex
-regex = re.compile('.WARS .*')
 
-# This might be the problem
+class document:
+	def _init_(self, string):
+		self.name = string
+
+	def raw_text:
+
+	def metadata:
+
+	def get_date:
+
+	def does_this_look_suspicious:
+		
+
+
+
 for line in f:
-	header = regex.findall(line)
+	header = naval.findall(line)
 	for word in header:
 		print word
+
+join readlines
+yield
