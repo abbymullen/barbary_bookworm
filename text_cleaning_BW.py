@@ -1,30 +1,33 @@
 import re
 
 
-f = open("v1.txt", 'r')
-
-def snippetyielder():
+#f = open("v1.txt", 'r')
 
 
-class document:
-	def _init_(self, string):
-		self.name = string
 
-	def raw_text:
+def snippetyielder(file):
+	with open(file, 'r') as text:
+		for line in text:
+			if re.match(r"(.*SDA.*)",line):
+				line = re.sub(r"(.*SDA.*)",r"\1---",line)
+				print line
+				
+	#print sub
 
-	def metadata:
 
-	def get_date:
+snippetyielder('test.txt')
+# class document:
+# 	def _init_(self, string):
+# 		self.string = string
 
-	def does_this_look_suspicious:
+# 	def raw_text:
+
+# 	def metadata:
+
+# 	def get_date:
+
+# 	def does_this_look_suspicious:
 		
 
 
 
-for line in f:
-	header = naval.findall(line)
-	for word in header:
-		print word
-
-join readlines
-yield
