@@ -2,15 +2,15 @@ import re
 
 
 #f = open("v1.txt", 'r')
+text = open('test.txt')
+a = text.readlines()
+p = "".join(a)
+docbreak = re.sub(r"(.*SDA.*)",r"\1DOCBREAK",p)
+docbreaks = docbreak.split("DOCBREAK")
 
-
-
-def snippetyielder(file):
-	with open(file, 'r') as text:
-		for line in text:
-			if re.match(r"(.*SDA.*)",line):
-			 	re.sub(r"(.*SDA.*)",r"\1\f",line).split("\f")
-			print line
+def snippetyielder(docbreaks):
+	for doc in docbreaks:
+		yield doc
 			# elif re.match(r"(.*NDA.*)",line):
 			# 	print line	
 			# elif re.match(r"(.*NR\&L.*)",line):
@@ -28,14 +28,16 @@ def snippetyielder(file):
 			# elif re.match(r"(.*\[GAO.*)",line):
 			# 	print line
 	#print line
+				#print line
 
 
-snippetyielder('test.txt')
-# class document:
-# 	def _init_(self, string):
-# 		self.string = string
+#snippetyielder()
 
-# 	def raw_text:
+ class document:
+  	def _init_(self, doc):
+  		self.doc = doc
+
+#  	def raw_text:
 
 # 	def metadata:
 
