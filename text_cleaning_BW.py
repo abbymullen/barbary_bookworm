@@ -9,10 +9,25 @@ def snippetyielder(file):
 	with open(file, 'r') as text:
 		for line in text:
 			if re.match(r"(.*SDA.*)",line):
-				line = re.sub(r"(.*SDA.*)",r"\1---",line)
-				print line
-				
-	#print sub
+			 	re.sub(r"(.*SDA.*)",r"\1\f",line).split("\f")
+			print line
+			# elif re.match(r"(.*NDA.*)",line):
+			# 	print line	
+			# elif re.match(r"(.*NR\&L.*)",line):
+			# 	print line
+			# elif re.match(r"(.Am\. State Paper.*)",line):
+			# 	print line
+			# elif re.match(r"(.*\[Statutes.*)",line):
+			# 	print line
+			# elif re.match(r"(.*NYPL.*)",line):
+			# 	print line
+			# elif re.match(r"(.*\[Treaties.*)",line):
+			# 	print line	
+			# elif re.match(r"(.*\[LC.*)",line):
+			# 	print line
+			# elif re.match(r"(.*\[GAO.*)",line):
+			# 	print line
+	#print line
 
 
 snippetyielder('test.txt')
