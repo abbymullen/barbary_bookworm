@@ -15,6 +15,7 @@ def snippetyielder(filename):
 	docbreak = re.sub(r"(.*\[Treaties.*)",r"\1DOCBREAK",docbreak)
 	docbreak = re.sub(r"(.*\[LC.*)",r"\1DOCBREAK",docbreak)
 	docbreak = re.sub(r"(.*\[GAO.*)",r"\1DOCBREAK",docbreak)
+	docbreak = re.sub(r"(N D A.*)",r"\1DOCBREAK",docbreak)
 
 	docbreaks = docbreak.split("DOCBREAK")
 
@@ -31,7 +32,7 @@ class Document():
 		self.doc = doc
 
 	def raw_text(self, doc):
-		#doc = str(doc)
+		doc = str(doc)
 		raw_text = re.sub(r"\f.*[0-9]+",r"",doc) #using formfeed to get rid of some page numbers/running heads
 		raw_text = re.sub(r"NAVAL OP.*",r"",raw_text) #eliminating more headers
 		raw_text = re.sub(r"W.*B.*",r"",raw_text) #eliminating more headers
@@ -55,11 +56,7 @@ class Document():
 			print recipient.group(2)
 		else:
 			print "Unknown"
-
- 	def title(self):
- 		pass
   
-
 	def metadata(self):
 		pass
 
@@ -75,5 +72,6 @@ if __name__=="__main__":
 		snippet = generator.next()
 		doc = Document(snippet)
 		print doc.author(snippet)
+		#print doc.raw_text(snippet)
 	
 	
