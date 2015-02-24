@@ -51,7 +51,7 @@ class Document():
 			print "Unknown"
 
 	def recipient(self, doc):
-		recipient = re.search(r"(To)(.*)([Ff]rom.*)",doc)
+		recipient = re.search(r"(To )(.*)(from.*)",doc)
 		if recipient:
 			print recipient.group(2)
 		else:
@@ -60,8 +60,12 @@ class Document():
 	def metadata(self):
 		pass
 
-	def get_date(self):
-		pass
+	def get_date(self, doc):
+		date = re.search(r"(\d\d*)\s(\w\w\w+)\W*\s(\d{4})",doc)
+		if date:
+			print date.group(1), date.group(2), date.group(3)
+		else:
+			print "Unknown"
 
 	def does_this_look_suspicious(self):
 		pass
@@ -71,7 +75,7 @@ if __name__=="__main__":
 	for snippet in generator:
 		snippet = generator.next()
 		doc = Document(snippet)
-		print doc.author(snippet)
+		print doc.get_date(snippet)
 		#print doc.raw_text(snippet)
 	
 	
