@@ -1,4 +1,5 @@
 import re
+import warnings
 
 def snippetyielder(filename):
 	text = open(filename, "r")
@@ -61,11 +62,40 @@ class Document():
 		pass
 
 	def get_date(self):
-		date = re.search(r"(\d\d*)\s(\w\w\w+)\W*\s(\d{4})",self.doc)
-		if date:
-			return date.group(1), date.group(2), date.group(3)
-		else:
-			return "Unknown"
+
+
+                # These are some regexes to match parts of dates.
+                month = r"[A-Z][a-z]+"
+                #This is something to try to catch misreadings of 12th, which seem really bad
+                
+                messedUpDaySuffix = r" ?(?:.?.t\?h)?"
+                day = r"\d{1,2}" + messedUpDaySuffix
+                dayOrNone = r"\d{0,2}" + messedUpDaySuffix
+                year = r"\d{4}"
+
+                #Then create a number of regex from these elements. First run the ones that actually look for a day;
+                #then run the wider net-casting ones that allow the day field to be empty and just give you "October 1789"
+                possibleFormats = [
+                        r"(%s)\s(%s)\W*\s(%s)" % (day, month, year),
+                        r"(%s)\s+\W*(%s).{0,5}\s+(%s)" % (month, day, year),
+                        r"[\[1I](%s) (%s) (%s)[\[I1]" %(dayOrNone,month,year) ,
+                        r"(%s)\s(%s)\W*\s(%s)" % (dayOrNone, month, year),
+                        r"(%s)\s+\W*(%s).{0,5}\s+(%s)" % (month, dayOrNone, year),
+                ]
+
+                
+                #loop through the formats:
+                
+                for reformat in possibleFormats:
+                        date = re.search(reformat,self.doc)
+                        if date:
+                                return date.group(1), date.group(2), date.group(3)
+
+
+                #Uncomment this line to see what sort of expressions you're missing on.
+                #warnings.warn("\n"+"\n"+"*"*100 + self.doc[:200])
+                return None
+
 
 	def does_this_look_suspicious(self):
 		pass
