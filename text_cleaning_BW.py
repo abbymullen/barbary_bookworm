@@ -5,7 +5,7 @@ def snippetyielder(filename):
 	a = text.readlines()
 	p = "".join(a)
 
-#detecting the breaks between documents and identifying them to break the docs with
+        #detecting the breaks between documents and identifying them to break the docs with
 	docbreak = re.sub(r"(.*SDA.*)",r"\1DOCBREAK",p)
 	docbreak = re.sub(r"(.*NDA.*)",r"\1DOCBREAK",docbreak)
 	docbreak = re.sub(r"(.*NR\&L.*)",r"\1DOCBREAK",docbreak)
@@ -19,7 +19,7 @@ def snippetyielder(filename):
 
 	docbreaks = docbreak.split("DOCBREAK")
 
-#yielding one document at a time
+        #yielding one document at a time
 	for doc in docbreaks:
 		yield doc
 
@@ -31,8 +31,8 @@ class Document():
 	def __init__(self, doc):
 		self.doc = doc
 
-	def raw_text(self, doc):
-		doc = str(doc)
+	def raw_text(self):
+		doc = str(self.doc)
 		raw_text = re.sub(r"\f.*[0-9]+",r"",doc) #using formfeed to get rid of some page numbers/running heads
 		raw_text = re.sub(r"NAVAL OP.*",r"",raw_text) #eliminating more headers
 		raw_text = re.sub(r"W.*B.*",r"",raw_text) #eliminating more headers
@@ -41,31 +41,31 @@ class Document():
 		raw_text = re.sub(r"(.*NR\&L.*)",r"",raw_text) #eliminating citations
 
 
-		print raw_text
+                return raw_text
 
-	def author(self,doc):
-		author = re.search(r"(.*To)(.*)(from\s)(.*)",doc)
+	def author(self):
+		author = re.search(r"(.*To)(.*)(from\s)(.*)",self.doc)
 		if author:
-			print author.group(4)
+			return author.group(4)
 		else:
-			print "Unknown"
+			return "Unknown"
 
-	def recipient(self, doc):
-		recipient = re.search(r"(To )(.*)(from.*)",doc)
+	def recipient(self):
+		recipient = re.search(r"(To )(.*)(from.*)",self.doc)
 		if recipient:
-			print recipient.group(2)
+			return recipient.group(2)
 		else:
-			print "Unknown"
+			return "Unknown"
   
 	def metadata(self):
 		pass
 
-	def get_date(self, doc):
-		date = re.search(r"(\d\d*)\s(\w\w\w+)\W*\s(\d{4})",doc)
+	def get_date(self):
+		date = re.search(r"(\d\d*)\s(\w\w\w+)\W*\s(\d{4})",self.doc)
 		if date:
-			print date.group(1), date.group(2), date.group(3)
+			return date.group(1), date.group(2), date.group(3)
 		else:
-			print "Unknown"
+			return "Unknown"
 
 	def does_this_look_suspicious(self):
 		pass
@@ -75,7 +75,7 @@ if __name__=="__main__":
 	for snippet in generator:
 		snippet = generator.next()
 		doc = Document(snippet)
-		print doc.get_date(snippet)
+		print doc.get_date()
 		#print doc.raw_text(snippet)
 	
 	
