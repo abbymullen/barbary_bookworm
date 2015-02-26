@@ -74,10 +74,13 @@ class Document():
 
 if __name__=="__main__":
 	generator = snippetyielder("v1.txt")
-	for snippet in generator:
-		snippet = generator.next()
-		doc = Document(snippet)
-		print doc.recipient()
+	#for snippet in generator:
+	snippet = generator.next()
+	doc = Document(snippet)
+	f = file.open("test_snippet_input.txt", "w")
+	f.write(doc.get_date() + "_" doc.author() + "\t" + doc.raw_text())
+	f.close()
+		#print doc.recipient()
 		#print doc.raw_text(snippet)
 	
 	
