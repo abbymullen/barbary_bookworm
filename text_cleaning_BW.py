@@ -1,4 +1,5 @@
 import re
+import json
 
 def snippetyielder(filename):
 	text = open(filename, "r")
@@ -74,11 +75,17 @@ class Document():
 		pass
 
 	def get_date(self):
-		date = re.search(r"(\d+)\s(\w\w\w+)\W*\s(\d{4})",self.doc)
+		date = re.search(r"\[*(\d+)\s(\w\w\w+)\W*\s(\d{4})",self.doc)
 		if date:
 			 return date.group(1) + "-" + date.group(2) + "-" + date.group(3)
-		else:
-			return "Unknown"
+		
+		year = re.search(r"\d{4}",self.doc)
+		if year:
+			return year.group()
+			
+		return "Unknown"
+
+
 
 	def does_this_look_suspicious(self):
 		pass
@@ -88,10 +95,18 @@ if __name__=="__main__":
 	for snippet in generator:
 		snippet = generator.next()
 		doc = Document(snippet)
-		#print doc.author()
-		f = open("input.txt", "a")
-		f.write(doc.get_date() + "_" + doc.author() + "\t" + doc.raw_text() + "\n")
-		f.close()
+		#print doc.get_date()
+		# f = open("input.txt", "a")
+		# f.write(doc.get_date() + "_" + doc.author() + "\t" + doc.raw_text() + "\n")
+		# f.close()
+
+		data = [ {'searchstring' : "To " + doc.recipient() + " from " + doc.author() + ", " + doc.get_date(), 
+		'author': doc.author(), 'recipient': doc.recipient(), 'date': doc.get_date(), 'filename': doc.get_date() + "_" + doc.author()
+		}]
+		data_string = json.dumps(data)
+		j = open("jsoncatalog.txt", "a")
+		j.write(data_string)
+		j.close()
 
 	
 	
