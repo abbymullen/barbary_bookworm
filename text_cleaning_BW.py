@@ -39,14 +39,25 @@ class Document():
 		raw_text = re.sub(r"(.*SDA.*)",r"",raw_text) #eliminating citations
 		raw_text = re.sub(r"(.*NDA.*)",r"",raw_text) #eliminating citations
 		raw_text = re.sub(r"(.*NR\&L.*)",r"",raw_text) #eliminating citations
-
-
-                return raw_text
+		raw_text = re.sub(r"(.Am\. State Paper.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*\[Statutes.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*NYPL.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*\[Treaties.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*\[LC.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*\[GAO.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(N D A.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"\s",r" ", raw_text) #eliminating tabs etc.	
+        	return raw_text
 
 	def author(self):
 		author = re.search(r"(.*To)(.*)(from\s)(.*)",self.doc)
 		if author:
-			return author.group(4)
+			author = author.group(4)
+			author = re.sub(r"(\w+\s*\w+),.*",r"\1",author) #getting rid of following titles
+			author = re.sub(r"Captain",r"",author) #getting rid of Captain
+			author = re.sub(r"\.",r"_",author) #getting rid of periods in names 
+			author = re.sub(r" ",r"",author) #Removing spaces to make it fit in the filename better
+			return author
 		else:
 			return "Unknown"
 
@@ -54,7 +65,7 @@ class Document():
 		recipient = re.search(r"(To )(.*)(from.*)",self.doc)
 		if recipient:
 			recipient = recipient.group(2)
-			recipient = re.sub(r"(\w+\s*\w+),.*",r"\1",recipient)
+			recipient = re.sub(r"(\w+\s*\w+),.*",r"\1",recipient) #attempting to clear out titles and such
 			return recipient
 		else:
 			return "Unknown"
@@ -65,7 +76,7 @@ class Document():
 	def get_date(self):
 		date = re.search(r"(\d+)\s(\w\w\w+)\W*\s(\d{4})",self.doc)
 		if date:
-			 return date.group(1) + " " + date.group(2) + " " + date.group(3)
+			 return date.group(1) + "-" + date.group(2) + "-" + date.group(3)
 		else:
 			return "Unknown"
 
@@ -74,13 +85,13 @@ class Document():
 
 if __name__=="__main__":
 	generator = snippetyielder("v1.txt")
-	#for snippet in generator:
-	snippet = generator.next()
-	doc = Document(snippet)
-	f = file.open("test_snippet_input.txt", "w")
-	f.write(doc.get_date() + "_" doc.author() + "\t" + doc.raw_text())
-	f.close()
-		#print doc.recipient()
-		#print doc.raw_text(snippet)
+	for snippet in generator:
+		snippet = generator.next()
+		doc = Document(snippet)
+		#print doc.author()
+		f = open("input.txt", "a")
+		f.write(doc.get_date() + "_" + doc.author() + "\t" + doc.raw_text() + "\n")
+		f.close()
+
 	
 	
