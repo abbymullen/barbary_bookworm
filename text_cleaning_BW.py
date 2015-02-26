@@ -53,7 +53,9 @@ class Document():
 	def recipient(self):
 		recipient = re.search(r"(To )(.*)(from.*)",self.doc)
 		if recipient:
-			return recipient.group(2)
+			recipient = recipient.group(2)
+			recipient = re.sub(r"(\w+\s*\w+),.*",r"\1",recipient)
+			return recipient
 		else:
 			return "Unknown"
   
@@ -61,9 +63,9 @@ class Document():
 		pass
 
 	def get_date(self):
-		date = re.search(r"(\d\d*)\s(\w\w\w+)\W*\s(\d{4})",self.doc)
+		date = re.search(r"(\d+)\s(\w\w\w+)\W*\s(\d{4})",self.doc)
 		if date:
-			return date.group(1), date.group(2), date.group(3)
+			 return date.group(1) + " " + date.group(2) + " " + date.group(3)
 		else:
 			return "Unknown"
 
@@ -71,11 +73,11 @@ class Document():
 		pass
 
 if __name__=="__main__":
-	generator = snippetyielder("test.txt")
+	generator = snippetyielder("v1.txt")
 	for snippet in generator:
 		snippet = generator.next()
 		doc = Document(snippet)
-		print doc.get_date()
+		print doc.recipient()
 		#print doc.raw_text(snippet)
 	
 	
