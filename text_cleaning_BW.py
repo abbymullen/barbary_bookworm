@@ -77,16 +77,6 @@ class Document():
 		pass
 
 	def get_date(self):
-		# date = re.search(r"\[*(\d+)\s(\w\w\w+)\W*\s(\d{4})",self.doc)
-		# if date:
-		# 	 return date.group(1) + "-" + date.group(2) + "-" + date.group(3)
-		
-		# year = re.search(r"\d{4}",self.doc)
-		# if year:
-		# 	return year.group()
-			
-		# return "Unknown"
-
 		# These are some regexes to match parts of dates.
 		month = r"[A-Z][a-z]+"
 		december = r"[Dd][ec]+[\.\']*"
