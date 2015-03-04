@@ -88,7 +88,7 @@ class Document():
 		# return "Unknown"
 
 		# These are some regexes to match parts of dates.
-		month = r"(?<![RE]ichard\s)[A-Z][a-z]+"
+		month = r"[A-Z][a-z]+"
 		december = r"[Dd][ec]+[\.\']*"
 		#This is something to try to catch misreadings of 12th, which seem really bad           
 		messedUpDaySuffix = r" ?(?:.?.t*\?h)?"
@@ -104,7 +104,7 @@ class Document():
 			r"(%s)\s+\W*(%s).{0,5}\s+(%s)" % (december, day, year),
 			r"[\[1I](%s) (%s) (%s)[\[I1]" %(dayOrNone,month,year) ,
 			r"(%s)\s(%s)\W*\s*(%s)" % (dayOrNone, month, year),
-			r"(%s)\s+\W*(%s).{0,5}\s+(%s)" % (month, dayOrNone, year),
+			r"(%s)\s+\W*(%s)(?<!Dale\s).{0,5}\s+(%s)" % (month, dayOrNone, year), #added the Dale reverse lookup
 			]
 		for reformat in possibleFormats:
 			date = re.search(reformat,self.doc)
