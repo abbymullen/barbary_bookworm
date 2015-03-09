@@ -52,6 +52,43 @@ class Document():
 		raw_text = re.sub(r"\s",r" ", raw_text) #eliminating tabs etc.	
         	return raw_text
 
+	def get_date(self):
+		head = self.doc[:150]
+		# import dateutil.parser.parse
+		#Rewrite to catch only first five or six lines
+		# These are some regexes to match parts of dates.
+		month = r"\[*[A-Z][a-z]+"
+		december = r"[Dd][ec]+[\.\']*"
+		#This is something to try to catch misreadings of 12th, which seem really bad           
+		messedUpDaySuffix = r" ?(?:.?.t*\?h)?"
+		day = r"\d{1,2}" + messedUpDaySuffix
+		dayOrNone = r"\d{0,2}" + messedUpDaySuffix
+		year = r"1\d{3}"
+		#Then create a number of regex from these elements. First run the ones that actually look for a day;
+		#then run the wider net-casting ones that allow the day field to be empty and just give you "October 1789"
+		possibleFormats = [
+			r"(%s)\s.*(%s)\W*\s*(%s)" % (day, month, year),
+			r"(%s)\s.*(%s)\W*\s(%s)" % (day, december, year),
+			r"(%s)\s+\W*(%s).{0,5}\s*(%s)" % (month, day, year),
+			r"(%s)\s+\W*(%s).{0,5}\s+(%s)" % (december, day, year),
+			r"[\[1I](%s) (%s) (%s)[\[I1]" %(dayOrNone,month,year) ,
+			r"(%s)\s(%s)\W*\s*(%s)" % (dayOrNone, month, year),
+			r"(%s)\s+\W*(%s)(?<!Dale\s).{0,5}\s+(%s)" % (month, dayOrNone, year), #added the Dale reverse lookup
+			]
+		for reformat in possibleFormats:
+			date = re.search(reformat,head)
+			if date:
+				rough = date.group(1) + ' ' + date.group(2) + ' ' + date.group(3)
+				return rough
+				
+
+
+
+			#Uncomment this line to see what sort of expressions you're missing on.
+			#warnings.warn("\n"+"\n"+"*"*100 + head[:200])
+		return "Unknown"
+
+
 	def author(self):
 		author = re.search(r"(.*To)(.*)(from\s)(.*)",self.doc)
 		if author:
@@ -73,38 +110,11 @@ class Document():
 		else:
 			return "Unknown"
   
+	
+
+		
 	def metadata(self):
 		pass
-
-	def get_date(self):
-		# These are some regexes to match parts of dates.
-		month = r"[A-Z][a-z]+"
-		december = r"[Dd][ec]+[\.\']*"
-		#This is something to try to catch misreadings of 12th, which seem really bad           
-		messedUpDaySuffix = r" ?(?:.?.t*\?h)?"
-		day = r"\d{1,2}" + messedUpDaySuffix
-		dayOrNone = r"\d{0,2}" + messedUpDaySuffix
-		year = r"1\d{3}"
-		#Then create a number of regex from these elements. First run the ones that actually look for a day;
-		#then run the wider net-casting ones that allow the day field to be empty and just give you "October 1789"
-		possibleFormats = [
-			r"(%s)\s.*(%s)\W*\s*(%s)" % (day, month, year),
-			r"(%s)\s.*(%s)\W*\s(%s)" % (day, december, year),
-			r"(%s)\s+\W*(%s).{0,5}\s*(%s)" % (month, day, year),
-			r"(%s)\s+\W*(%s).{0,5}\s+(%s)" % (december, day, year),
-			r"[\[1I](%s) (%s) (%s)[\[I1]" %(dayOrNone,month,year) ,
-			r"(%s)\s(%s)\W*\s*(%s)" % (dayOrNone, month, year),
-			r"(%s)\s+\W*(%s)(?<!Dale\s).{0,5}\s+(%s)" % (month, dayOrNone, year), #added the Dale reverse lookup
-			]
-		for reformat in possibleFormats:
-			date = re.search(reformat,self.doc)
-			if date:
-				return date.group(1), date.group(2), date.group(3)
-
-			#Uncomment this line to see what sort of expressions you're missing on.
-			warnings.warn("\n"+"\n"+"*"*100 + self.doc[:200])
-		return "Unknown"
-
 	def does_this_look_suspicious(self):
 		pass
 
@@ -114,13 +124,14 @@ if __name__=="__main__":
 		snippet = generator.next()
 		doc = Document(snippet)
 		print doc.get_date()
-		# f = open("input.txt", "a")
-		# f.write(doc.get_date() + "_" + doc.author() + "\t" + doc.raw_text() + "\n")
+		# f = open("date_test.txt", "a")
+		# f.write(str(doc.get_date()) + '\t' + str(doc.raw_text()) + '\n')
+		#  # + "_" + doc.author() + "\t" + doc.raw_text() + "\n") #change to integer ascending
 		# f.close()
 
 		# data = [ {'searchstring' : "To " + doc.recipient() + " from " + doc.author() + ", " + doc.get_date(), 
 		# 'author': doc.author(), 'recipient': doc.recipient(), 'date': doc.get_date(), 'filename': doc.get_date() + "_" + doc.author()
-		# }]
+		# }] #possibly add full text
 		# data_string = json.dumps(data)
 		# j = open("jsoncatalog.txt", "a")
 		# j.write(data_string)
