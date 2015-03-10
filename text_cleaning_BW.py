@@ -7,7 +7,7 @@ def snippetyielder(filename):
 	a = text.readlines()
 	p = "".join(a)
 
-        #detecting the breaks between documents and identifying them to break the docs with
+    #detecting the breaks between documents and identifying them to break the docs with
 	docbreak = re.sub(r"(.*SDA.*)",r"\1DOCBREAK",p)
 	docbreak = re.sub(r"(.*NDA.*)",r"\1DOCBREAK",docbreak)
 	docbreak = re.sub(r"(.*NR\&L.*)",r"\1DOCBREAK",docbreak)
@@ -19,10 +19,11 @@ def snippetyielder(filename):
 	docbreak = re.sub(r"(.*\[GAO.*)",r"\1DOCBREAK",docbreak)
 	docbreak = re.sub(r"(N D A.*)",r"\1DOCBREAK",docbreak)
 	docbreak = re.sub(r"(CL,.*)",r"\1DOCBREAK",docbreak)
+	docbreak = re.sub(r"(NA.*)",r"\1DOCBREAK",docbreak)
 
 	docbreaks = docbreak.split("DOCBREAK")
 
-        #yielding one document at a time
+    #yielding one document at a time
 	for doc in docbreaks:
 		yield doc
 
@@ -35,22 +36,48 @@ class Document():
 		self.doc = doc
 
 	def raw_text(self):
-		doc = str(self.doc)
-		raw_text = re.sub(r"\f.*[0-9]+",r"",doc) #using formfeed to get rid of some page numbers/running heads
-		raw_text = re.sub(r"NAVAL OP.*",r"",raw_text) #eliminating more headers
-		raw_text = re.sub(r"W.*B.*",r"",raw_text) #eliminating more headers
-		raw_text = re.sub(r"(.*SDA.*)",r"",raw_text) #eliminating citations
-		raw_text = re.sub(r"(.*NDA.*)",r"",raw_text) #eliminating citations
-		raw_text = re.sub(r"(.*NR\&L.*)",r"",raw_text) #eliminating citations
-		raw_text = re.sub(r"(.Am\. State Paper.*)",r"",raw_text) #eliminating citations
-		raw_text = re.sub(r"(.*\[Statutes.*)",r"",raw_text) #eliminating citations
-		raw_text = re.sub(r"(.*NYPL.*)",r"",raw_text) #eliminating citations
-		raw_text = re.sub(r"(.*\[Treaties.*)",r"",raw_text) #eliminating citations
-		raw_text = re.sub(r"(.*\[LC.*)",r"",raw_text) #eliminating citations
-		raw_text = re.sub(r"(.*\[GAO.*)",r"",raw_text) #eliminating citations
-		raw_text = re.sub(r"(N D A.*)",r"",raw_text) #eliminating citations
-		raw_text = re.sub(r"\s",r" ", raw_text) #eliminating tabs etc.	
-        	return raw_text
+		
+		# raw_text = re.sub(r"\f.*[0-9]+",r"",self.doc) #using formfeed to get rid of some page numbers/running heads
+		# raw_text = re.sub(r"(.*SDA.*)",r"",raw_text) #eliminating citations
+		# raw_text = re.sub(r"(.*NDA.*)",r"",raw_text) #eliminating citations
+		# raw_text = re.sub(r"(.*NR\&L.*)",r"",raw_text) #eliminating citations
+		# raw_text = re.sub(r"(.Am\. State Paper.*)",r"",raw_text) #eliminating citations
+		# raw_text = re.sub(r"(.*\[Statutes.*)",r"",raw_text) #eliminating citations
+		# raw_text = re.sub(r"(.*NYPL.*)",r"",raw_text) #eliminating citations
+		# raw_text = re.sub(r"(.*\[*Treaties.*)",r"",raw_text) #eliminating citations
+		# raw_text = re.sub(r"(.*\[*LC.*)",r"",raw_text) #eliminating citations
+		# raw_text = re.sub(r"(.*\[*GAO.*)",r"",raw_text) #eliminating citations
+		# raw_text = re.sub(r"(.*\[*N D A.*)",r"",raw_text) #eliminating citations
+		# raw_text = re.sub(r".*\[*(NA.*)",r"",raw_text) #eliminating citations
+		# raw_text = re.sub(r"\s",r" ", raw_text) #eliminating tabs etc.	
+		# raw_text = re.sub(r"NAVAL OP.*",r"",raw_text) #eliminating more headers
+		# raw_text = re.sub(r"W.*B.*",r"",raw_text) #eliminating more headers
+  #       	return raw_text
+
+		junk = [
+			r"\f.*[0-9]+",
+			r"(.*SDA.*)",
+			r"(.*NDA.*)",
+			r"(.*NR\&L.*)",
+			r"(.Am\. State Paper.*)",
+			r"(.*\[Statutes.*)",
+			r"(.*NYPL.*)",
+			r"(.*\[*Treaties.*)",
+			r"(.*\[*LC.*)",
+			r"(.*\[*GAO.*)",
+			r"(.*\[*N D A.*)",
+			r".*\[*(NA.*)",
+			r"NAVAL OP.*",
+			r"W.*B.*",
+			]
+
+		for regex in junk:
+			if re.search(regex,self.doc):
+				raw_text = re.sub(regex,r"",self.doc)
+				# raw_text = re.sub(r"\s",r" ",raw_text)
+				return raw_text
+			return self.doc
+
 
 	def get_date(self):
 		head = self.doc[:150]
@@ -71,7 +98,7 @@ class Document():
 			r"(%s)\s.*(%s)\W*\s(%s)" % (day, december, year),
 			r"(%s)\s+\W*(%s).{0,5}\s*(%s)" % (month, day, year),
 			r"(%s)\s+\W*(%s).{0,5}\s+(%s)" % (december, day, year),
-			r"[\[1I](%s) (%s) (%s)[\[I1]" %(dayOrNone,month,year) ,
+			r"[\[1I](%s) (%s) (%s)[\[I1]" %(dayOrNone,month,year),
 			r"(%s)\s(%s)\W*\s*(%s)" % (dayOrNone, month, year),
 			r"(%s)\s+\W*(%s)(?<!Dale\s).{0,5}\s+(%s)" % (month, dayOrNone, year), #added the Dale reverse lookup
 			]
@@ -79,14 +106,49 @@ class Document():
 			date = re.search(reformat,head)
 			if date:
 				rough = date.group(1) + ' ' + date.group(2) + ' ' + date.group(3)
+				if re.search(r"\[*\s*Jan[a-z]+",rough):
+					rough = re.sub(r"\s*\[*Jan[a-z]+",r" January",rough)
+					return rough
+				if re.search(r"\[*\s*Fe[a-z]+",rough):
+					rough = re.sub(r"\s*\[*Fe[a-z]+",r" February",rough)
+					return rough
+				if re.search(r"\[*\s*M[na]r[a-z]+",rough):
+					rough = re.sub(r"\[*\s*M[na]r[a-z]+",r" March",rough)
+					return rough
+				if re.search(r"\[*\s*Ap[a-z]+",rough):
+					rough = re.sub(r"\[*\s*Ap[a-z]+",r" April",rough)
+					return rough 
+				if re.search(r"\[*\s*May",rough):
+					rough = re.sub(r"\[\s*May",r" May",rough)
+					return rough
+				if re.search(r"\[*\s*J[nu][nem]+",rough):
+					rough = re.sub(r"\[\s*J[nu][nem]+",r" June",rough)
+					return rough
+				if re.search(r"\[*\s*J[udl]*y",rough):
+					rough = re.sub(r"\[*\s*J[udl]*y",r" July",rough)
+					return rough
+				if re.search(r"\[*\s*Au[a-z]*",rough):
+					rough = re.sub(r"\[*\s*Au[a-z]*",r" August",rough)
+					return rough
+				if re.search(r"\[*\s*Sep[a-z]*",rough):
+					rough = re.sub(r"\[*\s*Sep[a-z]*",r" September",rough)
+					return rough
+				if re.search(r"\[*\s*O[a-z]+",rough):
+					rough = re.sub(r"\[*\s*O[a-z]+",r" October",rough)
+					return rough
+				if re.search(r"\[*\s*[NB][a-z]*",rough):
+					rough = re.sub(r"\[*\s*[NB][a-z]*",r" November",rough)
+					return rough
+				if re.search(r"\[*\s*[Dd]e[ec][\.a-z]*'*",rough):
+					rough = re.sub(r"\[*\s*[Dd]e[ec][\.a-z]*'*",r" December",rough)
+					return rough
+					
 				return rough
-				
-
 
 
 			#Uncomment this line to see what sort of expressions you're missing on.
 			#warnings.warn("\n"+"\n"+"*"*100 + head[:200])
-		return "Unknown"
+			return "Unknown"
 
 
 	def author(self):
@@ -111,23 +173,27 @@ class Document():
 			return "Unknown"
   
 	
-
+	def id(self):
+		pass
 		
 	def metadata(self):
 		pass
 	def does_this_look_suspicious(self):
 		pass
 
+
+
+
 if __name__=="__main__":
-	generator = snippetyielder("v1.txt")
+	generator = snippetyielder("short_test.txt")
 	for snippet in generator:
 		snippet = generator.next()
 		doc = Document(snippet)
-		print doc.get_date()
-		# f = open("date_test.txt", "a")
-		# f.write(str(doc.get_date()) + '\t' + str(doc.raw_text()) + '\n')
-		#  # + "_" + doc.author() + "\t" + doc.raw_text() + "\n") #change to integer ascending
-		# f.close()
+		#print doc.get_date()
+		f = open("id_test.txt", "a")
+		f.write('NEW DOCUMENT \n' + str(doc.raw_text()) + '\n')
+		# #  # + "_" + doc.author() + "\t" + doc.raw_text() + "\n") #change to integer ascending
+		f.close()
 
 		# data = [ {'searchstring' : "To " + doc.recipient() + " from " + doc.author() + ", " + doc.get_date(), 
 		# 'author': doc.author(), 'recipient': doc.recipient(), 'date': doc.get_date(), 'filename': doc.get_date() + "_" + doc.author()
