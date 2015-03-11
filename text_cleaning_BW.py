@@ -8,26 +8,29 @@ def snippetyielder(filename):
 	p = "".join(a)
 
     #detecting the breaks between documents and identifying them to break the docs with
-	docbreak = re.sub(r"(.*SDA.*)",r"\1DOCBREAK",p)
-	docbreak = re.sub(r"(.*NDA.*)",r"\1DOCBREAK",docbreak)
-	docbreak = re.sub(r"(.*NR\&L.*)",r"\1DOCBREAK",docbreak)
-	docbreak = re.sub(r"(.Am\. State Paper.*)",r"\1DOCBREAK",docbreak)
-	docbreak = re.sub(r"(.*\[Statutes.*)",r"\1DOCBREAK",docbreak)
-	docbreak = re.sub(r"(.*NYPL.*)",r"\1DOCBREAK",docbreak)
-	docbreak = re.sub(r"(.*\[Treaties.*)",r"\1DOCBREAK",docbreak)
-	docbreak = re.sub(r"(.*\[LC.*)",r"\1DOCBREAK",docbreak)
-	docbreak = re.sub(r"(.*\[GAO.*)",r"\1DOCBREAK",docbreak)
-	docbreak = re.sub(r"(N D A.*)",r"\1DOCBREAK",docbreak)
-	docbreak = re.sub(r"(CL,.*)",r"\1DOCBREAK",docbreak)
-	docbreak = re.sub(r"(NA.*)",r"\1DOCBREAK",docbreak)
+	docbreak = re.sub(r"(.*SDA.*)",r"\1DOCBREAK\n",p)
+	docbreak = re.sub(r"(.*NDA.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(.*NR\&L.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(.Am\. State Paper.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(.*\[Statutes.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(.*NYPL.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(.*\[Treaties.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(.*\[LC.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(.*\[GAO.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(N D A.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(CL,.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(NA. SDA. CL.*)\n",r"\1DOCBREAK\n",docbreak)
+	return docbreak
+	# docbreaks = docbreak.split("DOCBREAK")
 
-	docbreaks = docbreak.split("DOCBREAK")
+ #    #yielding one document at a time
+	# for doc in docbreaks:
+	# 	yield doc
 
-    #yielding one document at a time
-	for doc in docbreaks:
-		yield doc
-
-
+test = snippetyielder('short_test.txt')
+test_test = open("test_test.txt", "a")
+test_test.write(test)
+test_test.close()
 
 
 #defining a class to pull out stuff from the snippets
@@ -37,46 +40,46 @@ class Document():
 
 	def raw_text(self):
 		
-		# raw_text = re.sub(r"\f.*[0-9]+",r"",self.doc) #using formfeed to get rid of some page numbers/running heads
-		# raw_text = re.sub(r"(.*SDA.*)",r"",raw_text) #eliminating citations
-		# raw_text = re.sub(r"(.*NDA.*)",r"",raw_text) #eliminating citations
-		# raw_text = re.sub(r"(.*NR\&L.*)",r"",raw_text) #eliminating citations
-		# raw_text = re.sub(r"(.Am\. State Paper.*)",r"",raw_text) #eliminating citations
-		# raw_text = re.sub(r"(.*\[Statutes.*)",r"",raw_text) #eliminating citations
-		# raw_text = re.sub(r"(.*NYPL.*)",r"",raw_text) #eliminating citations
-		# raw_text = re.sub(r"(.*\[*Treaties.*)",r"",raw_text) #eliminating citations
-		# raw_text = re.sub(r"(.*\[*LC.*)",r"",raw_text) #eliminating citations
-		# raw_text = re.sub(r"(.*\[*GAO.*)",r"",raw_text) #eliminating citations
-		# raw_text = re.sub(r"(.*\[*N D A.*)",r"",raw_text) #eliminating citations
-		# raw_text = re.sub(r".*\[*(NA.*)",r"",raw_text) #eliminating citations
-		# raw_text = re.sub(r"\s",r" ", raw_text) #eliminating tabs etc.	
-		# raw_text = re.sub(r"NAVAL OP.*",r"",raw_text) #eliminating more headers
-		# raw_text = re.sub(r"W.*B.*",r"",raw_text) #eliminating more headers
-  #       	return raw_text
+		raw_text = re.sub(r"\f.*[0-9]+",r"",self.doc) #using formfeed to get rid of some page numbers/running heads
+		raw_text = re.sub(r"(.*SDA.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*NDA.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*NR\&L.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.Am\. State Paper.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*\[Statutes.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*NYPL.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*\[*Treaties.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*\[*LC.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*\[*GAO.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(.*\[*N D A.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r".*\[*(NA.*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"\s",r" ", raw_text) #eliminating tabs etc.	
+		raw_text = re.sub(r"NAVAL OP.*",r"",raw_text) #eliminating more headers
+		raw_text = re.sub(r"W.*B.*",r"",raw_text) #eliminating more headers
+        	return raw_text
 
-		junk = [
-			r"\f.*[0-9]+",
-			r"(.*SDA.*)",
-			r"(.*NDA.*)",
-			r"(.*NR\&L.*)",
-			r"(.Am\. State Paper.*)",
-			r"(.*\[Statutes.*)",
-			r"(.*NYPL.*)",
-			r"(.*\[*Treaties.*)",
-			r"(.*\[*LC.*)",
-			r"(.*\[*GAO.*)",
-			r"(.*\[*N D A.*)",
-			r".*\[*(NA.*)",
-			r"NAVAL OP.*",
-			r"W.*B.*",
-			]
+		# junk = [
+		# 	r"\f.*[0-9]+",
+		# 	r"(.*SDA.*)",
+		# 	r"(.*NDA.*)",
+		# 	r"(.*NR\&L.*)",
+		# 	r"(.Am\. State Paper.*)",
+		# 	r"(.*\[Statutes.*)",
+		# 	r"(.*NYPL.*)",
+		# 	r"(.*\[*Treaties.*)",
+		# 	r"(.*\[*LC.*)",
+		# 	r"(.*\[*GAO.*)",
+		# 	r"(.*\[*N D A.*)",
+		# 	r".*\[*(NA.*)",
+		# 	r"NAVAL OP.*",
+		# 	r"W.*B.*",
+		# 	]
 
-		for regex in junk:
-			if re.search(regex,self.doc):
-				raw_text = re.sub(regex,r"",self.doc)
-				# raw_text = re.sub(r"\s",r" ",raw_text)
-				return raw_text
-			return self.doc
+		# for regex in junk:
+		# 	#if re.search(regex,self.doc):
+		# 	raw_text = re.sub(regex,r"",self.doc)
+		# 	# raw_text = re.sub(r"\s",r" ",raw_text)
+		# 	return raw_text
+
 
 
 	def get_date(self):
@@ -184,16 +187,16 @@ class Document():
 
 
 
-if __name__=="__main__":
-	generator = snippetyielder("short_test.txt")
-	for snippet in generator:
-		snippet = generator.next()
-		doc = Document(snippet)
-		#print doc.get_date()
-		f = open("id_test.txt", "a")
-		f.write('NEW DOCUMENT \n' + str(doc.raw_text()) + '\n')
-		# #  # + "_" + doc.author() + "\t" + doc.raw_text() + "\n") #change to integer ascending
-		f.close()
+# if __name__=="__main__":
+# 	generator = snippetyielder("short_test.txt")
+# 	for snippet in generator:
+# 		snippet = generator.next()
+# 		#doc = Document(snippet)
+# 		#print doc.get_date()
+# 		f = open("id_test.txt", "a")
+# 		f.write('NEW DOCUMENT \n' + str(snippet) + '\n')
+# 		# #  # + "_" + doc.author() + "\t" + doc.raw_text() + "\n") #change to integer ascending
+# 		f.close()
 
 		# data = [ {'searchstring' : "To " + doc.recipient() + " from " + doc.author() + ", " + doc.get_date(), 
 		# 'author': doc.author(), 'recipient': doc.recipient(), 'date': doc.get_date(), 'filename': doc.get_date() + "_" + doc.author()
