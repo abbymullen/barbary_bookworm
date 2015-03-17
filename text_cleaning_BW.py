@@ -89,6 +89,9 @@ class Document():
 			date = re.search("|".join(possibleFormats),head)
 			if date:
 				rough = date.group()
+				rough = re.search(r"(.*) (.*) (.+)", rough)
+				if rough:
+					return rough
 				rough = re.search(r"(.+) (.+) (.+)",rough)
 				if rough:
 					rough = rough.group(1) + ' ' + rough.group(2) + ' ' + rough.group(3)
@@ -129,7 +132,7 @@ class Document():
 					if re.search(r"\[*[Dd]e[ec][\.a-z]*'*",rough):
 						rough = re.sub(r"\[*[Dd]e[ec][\.a-z]*'*",r"December",rough)
 						return rough
-						
+
 
 			#Uncomment this line to see what sort of expressions you're missing on.
 			#warnings.warn("\n"+"\n"+"*"*100 + head[:200])
