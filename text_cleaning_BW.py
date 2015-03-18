@@ -67,12 +67,41 @@ class Document():
 		month = r"\[*[A-Z][a-z]+"
 		december = r"[Dd][ec]+"
 		#This is something to try to catch misreadings of 12th, which seem really bad           
-		messedUpDaySuffix = r" ?(?:.?.t*\?h*)?"
+		messedUpDaySuffix = r" ?(?:.?.t\?h)?"
 		day = r"\d{1,2}" + messedUpDaySuffix
 		dayOrNone = r"\d{0,2}" + messedUpDaySuffix
 		year = r"1\d{3}"
 		#Then create a number of regex from these elements. First run the ones that actually look for a day;
 		#then run the wider net-casting ones that allow the day field to be empty and just give you "October 1789"
+		
+		def reorder(rough):
+			# return rough
+			clean = re.sub(r"[1I](\d{2}) ",r"\1",rough)
+			clean = re.sub(r"[\[\.\"]",r"",clean)
+			clean = re.sub(r"(\d{4}).",r"\1",clean)
+			clean = re.sub(r"([A-Za-z\d]+)(\d{4})",r"\1 \2",clean)
+			clean = re.sub(r"^\s",r"",clean)
+			clean = re.sub(r"\s+",r" ",clean)
+			clean = re.sub(r"Dep[tf]",r"",clean)
+			clean = re.sub(r"[\'@\*\?\)\%\+]",r"",clean)
+			clean = re.sub(r"(\d{1,2})[A-Za-z]*",r"\1",clean)
+			
+
+			if re.search(r"(.{0,2})\s([A-Za-z]+)\s(\d{4})",clean):
+				reorder = re.sub(r"(.{0,2})\s+([A-Za-z]+)\s+(\d{4})",r"\3 \2 \1",clean)
+				reorder = re.sub(r"(\d{4}) ([A-Za-z]+) ([A-Za-z\W]+)",r"\1 \2",reorder)
+				reorder = re.sub(r"\,",r"",reorder)
+				return reorder
+			if re.search(r"([A-Za-z]+)\s(.{0,2})\s(\d{4})",clean):
+				reorder = re.sub(r"([A-Za-z]+)\s+(.{0,2})\s+(\d{4})",r"\3 \1 \2",clean)
+				reorder = re.sub(r"(\d{4}) ([A-Za-z]+) ([A-Za-z\W]+)",r"\1 \2",reorder)
+				reorder = re.sub(r"\,",r"",reorder)
+				return reorder
+			# if re.search(r"(\d{4}) ([A-Za-z]+) ([A-Za-z\,]+)",clean):
+			# 	reorder = re.sub(r"(\d{4}) ([A-Za-z]+) ([A-Za-z\,]+)",r"\1 \2",clean)
+			# 	return reorder
+			return clean
+
 		possibleFormats = [
 			r"(%s)\s(%s)[\"\.]\s(%s)" % (month, day, year),
 			# r"(\d{0,2})\"\s([A-Z][a-z]+)\s(\d{4})",
@@ -89,49 +118,43 @@ class Document():
 			date = re.search("|".join(possibleFormats),head)
 			if date:
 				rough = date.group()
-				rough = re.search(r"(.*) (.*) (.+)", rough)
 				if rough:
-					return rough
-				rough = re.search(r"(.+) (.+) (.+)",rough)
-				if rough:
-					rough = rough.group(1) + ' ' + rough.group(2) + ' ' + rough.group(3)
-					# return rough
-	 				if re.search(r"\[*Jan[a-z]+",rough):
-						rough = re.sub(r"\[*Jan[a-z]+",r"January",rough)
-						return rough
+					if re.search(r"\[*Jan[a-z]+",rough):
+						rough = re.sub(r"\[*Jan[a-z]+",r" January",rough)
+						return reorder(rough)
 					if re.search(r"\[*Fe[a-z]+",rough):
-						rough = re.sub(r"\[*Fe[a-z]+",r"February",rough)
-						return rough
+						rough = re.sub(r"\[*Fe[a-z]+",r" February",rough)
+						return reorder(rough)
 					if re.search(r"\[*M[na]r[a-z]+",rough):
-						rough = re.sub(r"\[*\s*M[na]r[a-z]+",r"March",rough)
-						return rough
-					if re.search(r"\[A*p[a-z]+",rough):
-						rough = re.sub(r"\[*Ap[a-z]+",r"April",rough)
-						return rough 
+						rough = re.sub(r"\[*M[na]r[a-z]+",r" March",rough)
+						return reorder(rough)
+					if re.search(r"\[A*p[a-z]+",rough): 
+						rough = re.sub(r"\[*Ap[a-z]+",r" April",rough)
+						return reorder(rough) 
 					if re.search(r"\[*May",rough):
-						rough = re.sub(r"\[*May",r"May",rough)
-						return rough
+						rough = re.sub(r"\[*May",r" May",rough)
+						return reorder(rough)
 					if re.search(r"\[*J[nu][nem]+",rough):
-						rough = re.sub(r"\[*J[nu][nem]+",r"June",rough)
-						return rough
+						rough = re.sub(r"\[*J[nu][nem]+",r" June",rough)
+						return reorder(rough)
 					if re.search(r"\[*J[udl]*y",rough):
-						rough = re.sub(r"\[*J[udl]*y",r"July",rough)
-						return rough
+						rough = re.sub(r"\[*J[udl]*y",r" July",rough)
+						return reorder(rough)
 					if re.search(r"\[*Au[a-z]*",rough):
-						rough = re.sub(r"\[*Au[a-z]*",r"August",rough)
-						return rough
+						rough = re.sub(r"\[*Au[a-z]*",r" August",rough)		
+						return reorder(rough)
 					if re.search(r"\[*Sep[a-z]*",rough):
-						rough = re.sub(r"\[*Sep[a-z]*",r"September",rough)
-						return rough
+						rough = re.sub(r"\[*Sep[a-z]*",r" September",rough)
+						return reorder(rough)
 					if re.search(r"\[*O[a-z]+",rough):
-						rough = re.sub(r"\[*O[a-z]+",r"October",rough)
-						return rough
+						rough = re.sub(r"\[*O[a-z]+",r" October",rough)
+						return reorder(rough)
 					if re.search(r"\[*[NB][a-z]*",rough):
-						rough = re.sub(r"\[*[NB][a-z]*",r"November",rough)
-						return rough
+						rough = re.sub(r"\[*[NB][a-z]*",r" November",rough)
+						return reorder(rough)
 					if re.search(r"\[*[Dd]e[ec][\.a-z]*'*",rough):
-						rough = re.sub(r"\[*[Dd]e[ec][\.a-z]*'*",r"December",rough)
-						return rough
+						rough = re.sub(r"\[*[Dd]e[ec][\.a-z]*'*",r" December",rough)
+						return reorder(rough)
 
 
 			#Uncomment this line to see what sort of expressions you're missing on.
@@ -173,7 +196,7 @@ class Document():
 
 
 if __name__=="__main__":
-	for snippet in snippetyielder("short_test.txt"):
+	for snippet in snippetyielder("v1.txt"):
 		doc = Document(snippet)
 		print doc.get_date()
 		# f = open("snippet_test.txt", "a")
