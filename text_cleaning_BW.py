@@ -1,8 +1,9 @@
 import re
 import json
 import warnings
-from dateutil.parser import *
+import dateutil.parser
 from datetime import *
+DEFAULT = datetime(1798,1,1)
 
 def snippetyielder(filename):
 	text = open(filename, "r")
@@ -22,6 +23,9 @@ def snippetyielder(filename):
 	docbreak = re.sub(r"(N D A.*)",r"\1DOCBREAK\n",docbreak)
 	docbreak = re.sub(r"(CL,.*)",r"\1DOCBREAK\n",docbreak)
 	docbreak = re.sub(r"(NA. SDA. CL.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(\[*HA.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(\[*WDA.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(\[*MCA.*)",r"\1DOCBREAK\n",docbreak)
 	docbreak = re.sub(r"(DOCBREAK)+",r"DOCBREAK\n",docbreak)
 	
 	docbreaks = docbreak.split("DOCBREAK")
@@ -68,51 +72,65 @@ class Document():
 		december = r"[Dd][ec]+"
 		#This is something to try to catch misreadings of 12th, which seem really bad           
 		messedUpDaySuffix = r" ?(?:.?.t\?h)?"
-		day = r"\d{1,2}" + messedUpDaySuffix
+		day = r"\d{1,2}\**" + messedUpDaySuffix
 		dayOrNone = r"\d{0,2}" + messedUpDaySuffix
-		year = r"1\d{3}"
+		year = r"[I1]\d{3}"
 		#Then create a number of regex from these elements. First run the ones that actually look for a day;
 		#then run the wider net-casting ones that allow the day field to be empty and just give you "October 1789"
 		
 		def reorder(rough):
 			# return rough
 			clean = re.sub(r"[1I](\d{2}) ",r"\1",rough)
+			clean = re.sub(r"I(\d{3})",r"1\1",clean)
 			clean = re.sub(r"[\[\.\"]",r"",clean)
-			clean = re.sub(r"(\d{4}).",r"\1",clean)
-			clean = re.sub(r"([A-Za-z\d]+)(\d{4})",r"\1 \2",clean)
-			clean = re.sub(r"^\s",r"",clean)
+			clean = re.sub(r"[A-Za-z\d]*(\d{4}).",r" \1",clean)
+			
 			clean = re.sub(r"\s+",r" ",clean)
 			clean = re.sub(r"Dep[tf]",r"",clean)
 			clean = re.sub(r"[\'@\*\?\)\%\+]",r"",clean)
 			clean = re.sub(r"(\d{1,2})[A-Za-z]*",r"\1",clean)
+			clean = re.sub(r"^\s",r"",clean)
+			clean = re.sub(r"([A-Za-z])\s([A-Za-z\d]+)(\d{4})",r"\1 \2 \3",clean)
+			clean = re.sub(r",",r" ",clean)
 			
 
-			if re.search(r"(.{0,2})\s([A-Za-z]+)\s(\d{4})",clean):
-				reorder = re.sub(r"(.{0,2})\s+([A-Za-z]+)\s+(\d{4})",r"\3 \2 \1",clean)
-				reorder = re.sub(r"(\d{4}) ([A-Za-z]+) ([A-Za-z\W]+)",r"\1 \2",reorder)
-				reorder = re.sub(r"\,",r"",reorder)
-				return reorder
-			if re.search(r"([A-Za-z]+)\s(.{0,2})\s(\d{4})",clean):
-				reorder = re.sub(r"([A-Za-z]+)\s+(.{0,2})\s+(\d{4})",r"\3 \1 \2",clean)
-				reorder = re.sub(r"(\d{4}) ([A-Za-z]+) ([A-Za-z\W]+)",r"\1 \2",reorder)
-				reorder = re.sub(r"\,",r"",reorder)
-				return reorder
-			# if re.search(r"(\d{4}) ([A-Za-z]+) ([A-Za-z\,]+)",clean):
-			# 	reorder = re.sub(r"(\d{4}) ([A-Za-z]+) ([A-Za-z\,]+)",r"\1 \2",clean)
+			# if re.search(r"[A-Za-z]*\s*(.{0,2})\s([A-Za-z]+)\s(\d{4})",clean):
+			# 	reorder = re.sub(r"[A-Za-z]*\s*(.{0,2})\s+([A-Za-z]+)\s+(\d{4})",r"\3 \2 \1",clean)
+			# 	reorder = re.sub(r"(\d{4}) ([A-Za-z]+) ([A-Za-z\W]+)",r"\1 \2",reorder)
+			# 	reorder = re.sub(r"\,",r"",reorder)
 			# 	return reorder
+			# if re.search(r"[A-Za-z]*\s*([A-Za-z]+)\s(.{0,2})\s(\d{4})",clean):
+			# 	reorder = re.sub(r"([A-Za-z]+)\s+(.{0,2})\s+(\d{4})",r"\3 \1 \2",clean)
+			# 	reorder = re.sub(r"(\d{4}) ([A-Za-z]+) ([A-Za-z\W]+)",r"\1 \2",reorder)
+			# 	reorder = re.sub(r"\,",r"",reorder)
+			# 	return reorder
+			if re.search(r"(\d{0,2}) ([A-Za-z]+)\s+(\d{4})",clean):
+				reorder = re.sub(r"(\d{0,2}) ([A-Za-z]+)\s+(\d{4})",r"\3 \2 \1",clean)
+				return reorder
+			if re.search(r"([A-Za-z]+)\s+.*(\d{4})",clean):
+				reorder = re.sub(r"([A-Za-z]+)\s+.*(\d{4})",r"\2 \1",clean)
+				return reorder
+		
+			
 			return clean
 
+		def dateparser(rough):
+			rough = reorder(rough)
+			clean = dateutil.parser.parse(rough, default = DEFAULT)
+			return clean
+			# return rough
+
 		possibleFormats = [
-			r"(%s)\s(%s)[\"\.]\s(%s)" % (month, day, year),
-			# r"(\d{0,2})\"\s([A-Z][a-z]+)\s(\d{4})",
-			r"(%s).\s(%s)\s(%s)" % (dayOrNone, month, year),
-			r"(%s)[\'\"]*\s.*(%s)\s(%s)[\'\.]*" % (day, december, year),
-			r"(%s)\s+(%s)['\"]*.{0,5}\s*(%s)[\'\.]*" % (month, day, year),
-			r"(%s)\s+(%s)[\'\"]*.{0,5}\s+(%s)[\'\.]*" % (december, day, year),
-			r"[\[1I](%s) (%s) (%s)[\[I1]" % (day, month, year),
-			r"(%s)\s(%s)*[\'\"]*\W*\s*(%s)[\'\.]*" % (dayOrNone, month, year),
-			r"(%s)\s+\W*(%s)(?<!Dale)\s.{0,5}\s+(%s)[\'\.]*" % (month, dayOrNone, year),
-			
+			# r"(%s)\s(%s)[\"\.]\s(%s)" % (month, day, year),
+			# r"(%s).\s(%s)\s(%s)" % (dayOrNone, month, year),
+			# r"(%s)[\'\"]*\s*(%s)\s(%s)[\'\.]*" % (day, december, year),
+			# r"(%s)\s+(%s)['\"]*.{0,5}\s*(%s)[\'\.]*" % (month, day, year),
+			# r"(%s)\s+(%s)[\'\"]*.{0,5}\s+(%s)[\'\.]*" % (december, day, year),
+			# r"[\[1I]*(%s)\s*(%s) (%s)[\]I1]*" % (day, month, year),
+			# r"(%s)\s(%s)*[\'\"]*\W*\s*(%s)[\'\.]*" % (dayOrNone, month, year),
+			# r"(%s)\s+\W*(%s)(?<!Dale)\s.{0,5}\s+(%s)[\'\.]*" % (month, dayOrNone, year),
+			# r".*(%s)" % (year),
+			r"\s*[\[I1]*(\d{0,2})[\'\"]*\s*([A-Za-z]+),*\s*([1I]\d{3})[\]1I\.]*",
 			]
 		for reformat in possibleFormats:
 			date = re.search("|".join(possibleFormats),head)
@@ -121,40 +139,77 @@ class Document():
 				if rough:
 					if re.search(r"\[*Jan[a-z]+",rough):
 						rough = re.sub(r"\[*Jan[a-z]+",r" January",rough)
-						return reorder(rough)
+						rough = reorder(rough)
+						# if dateparser(rough):
+						# 	clean =dateparser(rough)
+						# 	return str(clean)
+						return rough
 					if re.search(r"\[*Fe[a-z]+",rough):
 						rough = re.sub(r"\[*Fe[a-z]+",r" February",rough)
-						return reorder(rough)
+						rough = reorder(rough)
+						return rough
+						clean = dateparser(rough)
+						return clean
 					if re.search(r"\[*M[na]r[a-z]+",rough):
 						rough = re.sub(r"\[*M[na]r[a-z]+",r" March",rough)
-						return reorder(rough)
+						rough = reorder(rough)
+						return rough
+						clean = dateparser(rough)
+						return clean
 					if re.search(r"\[A*p[a-z]+",rough): 
 						rough = re.sub(r"\[*Ap[a-z]+",r" April",rough)
-						return reorder(rough) 
+						rough = reorder(rough)
+						return rough
+						clean = dateparser(rough)
+						return clean
 					if re.search(r"\[*May",rough):
 						rough = re.sub(r"\[*May",r" May",rough)
-						return reorder(rough)
+						rough = reorder(rough)
+						return rough
+						clean = dateparser(rough)
+						return clean
 					if re.search(r"\[*J[nu][nem]+",rough):
 						rough = re.sub(r"\[*J[nu][nem]+",r" June",rough)
-						return reorder(rough)
+						rough = reorder(rough)
+						return rough
+						clean = dateparser(rough)
+						return clean
 					if re.search(r"\[*J[udl]*y",rough):
 						rough = re.sub(r"\[*J[udl]*y",r" July",rough)
-						return reorder(rough)
+						rough = reorder(rough)
+						return rough
+						clean = dateparser(rough)
+						return clean
 					if re.search(r"\[*Au[a-z]*",rough):
 						rough = re.sub(r"\[*Au[a-z]*",r" August",rough)		
-						return reorder(rough)
+						rough = reorder(rough)
+						return rough
+						clean = dateparser(rough)
+						return clean
 					if re.search(r"\[*Sep[a-z]*",rough):
 						rough = re.sub(r"\[*Sep[a-z]*",r" September",rough)
-						return reorder(rough)
+						rough = reorder(rough)
+						return rough
+						clean = dateparser(rough)
+						return clean
 					if re.search(r"\[*O[a-z]+",rough):
 						rough = re.sub(r"\[*O[a-z]+",r" October",rough)
-						return reorder(rough)
+						rough = reorder(rough)
+						return rough
+						clean = dateparser(rough)
+						return clean
 					if re.search(r"\[*[NB][a-z]*",rough):
 						rough = re.sub(r"\[*[NB][a-z]*",r" November",rough)
-						return reorder(rough)
+						rough = reorder(rough)
+						return rough
+						clean = dateparser(rough)
+						return clean
 					if re.search(r"\[*[Dd]e[ec][\.a-z]*'*",rough):
 						rough = re.sub(r"\[*[Dd]e[ec][\.a-z]*'*",r" December",rough)
-						return reorder(rough)
+						rough = reorder(rough)
+						return rough
+						clean = dateparser(rough)
+						return clean
 
 
 			#Uncomment this line to see what sort of expressions you're missing on.
@@ -198,10 +253,10 @@ class Document():
 if __name__=="__main__":
 	for snippet in snippetyielder("v1.txt"):
 		doc = Document(snippet)
-		print doc.get_date()
-		# f = open("snippet_test.txt", "a")
-		# f.write(doc.get_date() + '\t' + doc.raw_text()[:450] + '\n') #change to integer ascending
-		# f.close()
+		# print doc.get_date()
+		f = open("snippet_test.txt", "a")
+		f.write(doc.get_date() + '\t' + doc.raw_text()[:175] + '\n') #change to integer ascending
+		f.close()
 
 		# data = [ {'searchstring' : "To " + doc.recipient() + " from " + doc.author() + ", " + doc.get_date(), 
 		# 'author': doc.author(), 'recipient': doc.recipient(), 'date': doc.get_date(), 'filename': doc.get_date() + "_" + doc.author()
