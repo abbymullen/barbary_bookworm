@@ -6,8 +6,6 @@ from datetime import *
 DEFAULT = datetime(1798,1,1)
 
 
-
-
 def snippetyielder(filename):
 	text = open(filename, "r")
 	a = text.readlines()
@@ -39,6 +37,8 @@ def snippetyielder(filename):
 			yield doc
 
 
+
+
 class Regexdate(object):
         def __init__(self,string):
                 """
@@ -58,8 +58,14 @@ class Regexdate(object):
                 best_guess = reorder(best_guess)
                 return to_iso(best_guess)
 
+        def find_year(self):
+                return 
+                
         def find_daty_string(self,string):
-                pass
+                f = re.sub(r"[0-9]+","",string)
+                #if len(f) > 5:
+                #        return ""
+                return f
                 
         def reorder(rough):
                 """
@@ -137,11 +143,6 @@ class Regexdate(object):
 			date = re.search("|".join(possibleFormats),head)
 			if date:
 				rough = date.group()
-                                
-
-				if rough:
-                         
-
 
         def reformatAsISO(self):
                 pass
@@ -175,6 +176,19 @@ class Document():
 		raw_text = re.sub(r"\s",r" ", raw_text) #eliminating tabs etc.	
 		return raw_text
 
+        def fix_months(self):
+                monthLookups = {r"January":r"\[*Jan[a-z]+",
+                                r"February":r"\[*Fe[a-z]+",
+                                r"March":r"\[*M[na]r[a-z]+",
+                                r"April":r"\[*Ap[a-z]+",
+                                r"May":r"\[*May",
+                                r"June":r"\[*J[nu][nem]+",
+                                r"July":r"\[*J[udl]*y",
+                                r"August":r"\[*Au[a-z]*",
+                                r"September":r"\[*Sep[a-z]*",
+                                r"October":r"\[*O[a-z]+",
+                                r"November":r"\[*[NB][a-z]*",
+                                r"December":r"\[*[Dd]e[ec][\.a-z]*'*"}
 
 	def get_date(self):
 		head = self.raw_text()[:175]
@@ -205,15 +219,30 @@ class Document():
   
 	
 	def id(self):
-		pass
+                global n
+                try:
+                        return self.id
+                except:
+
+                        n += 1
+                        self.id = n
+                        return self.id
 		
 	def metadata(self):
-		pass
+                metadata = {
+                        "filename":self.id(),
+                        "author":self.author(),
+                        "recipient":self.recipient()
+                }
+		return json.dumps(metadata)
+
+
+                
 	def does_this_look_suspicious(self):
 		pass
 
 
-
+n = 1
 
 if __name__=="__main__":
 	for snippet in snippetyielder("v1.txt"):
