@@ -136,80 +136,81 @@ class Document():
 			date = re.search("|".join(possibleFormats),head)
 			if date:
 				rough = date.group()
-				if rough:
-					if re.search(r"\[*Jan[a-z]+",rough):
-						rough = re.sub(r"\[*Jan[a-z]+",r" January",rough)
-						rough = reorder(rough)
-						# if dateparser(rough):
-						# 	clean =dateparser(rough)
-						# 	return str(clean)
-						return rough
-					if re.search(r"\[*Fe[a-z]+",rough):
-						rough = re.sub(r"\[*Fe[a-z]+",r" February",rough)
-						rough = reorder(rough)
-						return rough
-						clean = dateparser(rough)
-						return clean
-					if re.search(r"\[*M[na]r[a-z]+",rough):
-						rough = re.sub(r"\[*M[na]r[a-z]+",r" March",rough)
-						rough = reorder(rough)
-						return rough
-						clean = dateparser(rough)
-						return clean
-					if re.search(r"\[A*p[a-z]+",rough): 
-						rough = re.sub(r"\[*Ap[a-z]+",r" April",rough)
-						rough = reorder(rough)
-						return rough
-						clean = dateparser(rough)
-						return clean
-					if re.search(r"\[*May",rough):
-						rough = re.sub(r"\[*May",r" May",rough)
-						rough = reorder(rough)
-						return rough
-						clean = dateparser(rough)
-						return clean
-					if re.search(r"\[*J[nu][nem]+",rough):
-						rough = re.sub(r"\[*J[nu][nem]+",r" June",rough)
-						rough = reorder(rough)
-						return rough
-						clean = dateparser(rough)
-						return clean
-					if re.search(r"\[*J[udl]*y",rough):
-						rough = re.sub(r"\[*J[udl]*y",r" July",rough)
-						rough = reorder(rough)
-						return rough
-						clean = dateparser(rough)
-						return clean
-					if re.search(r"\[*Au[a-z]*",rough):
-						rough = re.sub(r"\[*Au[a-z]*",r" August",rough)		
-						rough = reorder(rough)
-						return rough
-						clean = dateparser(rough)
-						return clean
-					if re.search(r"\[*Sep[a-z]*",rough):
-						rough = re.sub(r"\[*Sep[a-z]*",r" September",rough)
-						rough = reorder(rough)
-						return rough
-						clean = dateparser(rough)
-						return clean
-					if re.search(r"\[*O[a-z]+",rough):
-						rough = re.sub(r"\[*O[a-z]+",r" October",rough)
-						rough = reorder(rough)
-						return rough
-						clean = dateparser(rough)
-						return clean
-					if re.search(r"\[*[NB][a-z]*",rough):
-						rough = re.sub(r"\[*[NB][a-z]*",r" November",rough)
-						rough = reorder(rough)
-						return rough
-						clean = dateparser(rough)
-						return clean
-					if re.search(r"\[*[Dd]e[ec][\.a-z]*'*",rough):
-						rough = re.sub(r"\[*[Dd]e[ec][\.a-z]*'*",r" December",rough)
-						rough = reorder(rough)
-						return rough
-						clean = dateparser(rough)
-						return clean
+				return rough
+				# if rough:
+				# 	if re.search(r"\[*Jan[a-z]+",rough):
+				# 		rough = re.sub(r"\[*Jan[a-z]+",r" January",rough)
+				# 		rough = reorder(rough)
+				# 		# if dateparser(rough):
+				# 		# 	clean =dateparser(rough)
+				# 		# 	return str(clean)
+				# 		return rough
+				# 	if re.search(r"\[*Fe[a-z]+",rough):
+				# 		rough = re.sub(r"\[*Fe[a-z]+",r" February",rough)
+				# 		rough = reorder(rough)
+				# 		return rough
+				# 		clean = dateparser(rough)
+				# 		return clean
+				# 	if re.search(r"\[*M[na]r[a-z]+",rough):
+				# 		rough = re.sub(r"\[*M[na]r[a-z]+",r" March",rough)
+				# 		rough = reorder(rough)
+				# 		return rough
+				# 		clean = dateparser(rough)
+				# 		return clean
+				# 	if re.search(r"\[A*p[a-z]+",rough): 
+				# 		rough = re.sub(r"\[*Ap[a-z]+",r" April",rough)
+				# 		rough = reorder(rough)
+				# 		return rough
+				# 		clean = dateparser(rough)
+				# 		return clean
+				# 	if re.search(r"\[*May",rough):
+				# 		rough = re.sub(r"\[*May",r" May",rough)
+				# 		rough = reorder(rough)
+				# 		return rough
+				# 		clean = dateparser(rough)
+				# 		return clean
+				# 	if re.search(r"\[*J[nu][nem]+",rough):
+				# 		rough = re.sub(r"\[*J[nu][nem]+",r" June",rough)
+				# 		rough = reorder(rough)
+				# 		return rough
+				# 		clean = dateparser(rough)
+				# 		return clean
+				# 	if re.search(r"\[*J[udl]*y",rough):
+				# 		rough = re.sub(r"\[*J[udl]*y",r" July",rough)
+				# 		rough = reorder(rough)
+				# 		return rough
+				# 		clean = dateparser(rough)
+				# 		return clean
+				# 	if re.search(r"\[*Au[a-z]*",rough):
+				# 		rough = re.sub(r"\[*Au[a-z]*",r" August",rough)		
+				# 		rough = reorder(rough)
+				# 		return rough
+				# 		clean = dateparser(rough)
+				# 		return clean
+				# 	if re.search(r"\[*Sep[a-z]*",rough):
+				# 		rough = re.sub(r"\[*Sep[a-z]*",r" September",rough)
+				# 		rough = reorder(rough)
+				# 		return rough
+				# 		clean = dateparser(rough)
+				# 		return clean
+				# 	if re.search(r"\[*O[a-z]+",rough):
+				# 		rough = re.sub(r"\[*O[a-z]+",r" October",rough)
+				# 		rough = reorder(rough)
+				# 		return rough
+				# 		clean = dateparser(rough)
+				# 		return clean
+				# 	if re.search(r"\[*[NB][a-z]*",rough):
+				# 		rough = re.sub(r"\[*[NB][a-z]*",r" November",rough)
+				# 		rough = reorder(rough)
+				# 		return rough
+				# 		clean = dateparser(rough)
+				# 		return clean
+				# 	if re.search(r"\[*[Dd]e[ec][\.a-z]*'*",rough):
+				# 		rough = re.sub(r"\[*[Dd]e[ec][\.a-z]*'*",r" December",rough)
+				# 		rough = reorder(rough)
+				# 		return rough
+				# 		clean = dateparser(rough)
+				# 		return clean
 
 
 			#Uncomment this line to see what sort of expressions you're missing on.
