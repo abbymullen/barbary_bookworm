@@ -41,3 +41,8 @@ all_vol.txt:v1.txt v2.txt v3.txt v4.txt v5.txt v6.txt
 
 input.txt jsoncatalog.txt: all_vol.txt
 	python text_cleaning_BW.py
+
+
+bookworm:
+	git clone git@github.com:Bookworm-Project/BookwormDB bookworm
+	$(MAKE) -C bookworm
