@@ -1,4 +1,4 @@
-all: v1.pdf v1.txt v2.pdf v2.txt v3.pdf v3.txt v4.pdf v4.txt v5.pdf v5.txt v6.pdf v6.txt all_vol.txt
+all: v1.pdf v1.txt v2.pdf v2.txt v3.pdf v3.txt v4.pdf v4.txt v5.pdf v5.txt v6.pdf v6.txt all_vol.txt input.txt jsoncatalog.txt
 
 v1.pdf:
 	curl -o v1.pdf 'http://www.ibiblio.org/anrs/docs/E/E3/nd_barbarywars_v01.pdf'
@@ -38,3 +38,6 @@ v6.txt:v6.pdf
 
 all_vol.txt:v1.txt v2.txt v3.txt v4.txt v5.txt v6.txt
 	cat *.txt >> all_vol.txt
+
+input.txt jsoncatalog.txt: all_vol.txt
+	python text_cleaning_BW.py
