@@ -2,6 +2,6 @@
 {"datatype": "searchstring", "field": "searchstring", "unique": true, "type": "text"},
  {"datatype": "etc", "field": "full_text", "unique": true, "type": "text"},
  {"datatype": "categorical", "field": "author", "unique": true, "type": "text"},
- {"datatype": "categorical", "field": "date", "unique": true, "type": "text"},
+ {"datatype": "time", "field": "date", "unique": true, "type": "text","derived":[{"resolution":"year"}]},
  {"datatype": "categorical", "field": "recipient", "unique": true, "type": "text"}
 ]
