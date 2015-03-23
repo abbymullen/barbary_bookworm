@@ -224,7 +224,7 @@ n = 1
 if __name__=="__main__":
 	f = open("input.txt", "a")
 	j = open("jsoncatalog.txt", "a")
-	for snippet in snippetyielder("v1.txt"):
+	for snippet in snippetyielder("all_vol.txt"):
 		doc = Document(snippet)
 		# print doc.id() + '\t' + doc.raw_text()
 		f.write(doc.id() + '\t'	+ doc.raw_text() + '\n')
