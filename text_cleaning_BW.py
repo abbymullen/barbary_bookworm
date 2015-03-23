@@ -7,10 +7,17 @@ from datetime import *
 DEFAULT = datetime(1798,1,1)
 
 
+
 def snippetyielder(filename):
+	"""
+	This function takes a text file with many small documents in it, and returns those documents broken out into 
+	individual units. I used the citation at the end of each document as the breaking point. I had to use a custom
+	break because the OCR of the text file incorporates almost every non-printing character in its read."""
 	text = open(filename, "r")
 	a = text.readlines()
 	p = "".join(a) 	  #detecting the breaks between documents and identifying them to break the docs with
+
+
 	docbreak = re.sub(r"(.*SDA.*)",r"\1DOCBREAK\n",p)
 	docbreak = re.sub(r"(.*NDA.*)",r"\1DOCBREAK\n",docbreak)
 	docbreak = re.sub(r"(.*NR\&L.*)",r"\1DOCBREAK\n",docbreak)
@@ -46,10 +53,18 @@ class Regexdate():
 		best_guess = reorder(best_guess) 	 	 	 
 	 	return to_iso(best_guess) 	  
 
-	def find_year(self): 	 	 	 
+	def find_year(self): 	
+		"""
+		Pulls out a year without recourse to datetime and corrects small OCR problems
+		""" 	 	 
 	 	year = re.search(r"[I1]\d{3}",self.string)
 	 	if year: 	 	 	  
-	 		return year.group()	
+	 		if re.search(r"(\d{4})",year.group()):
+	 			return year.group()
+	 		if re.search(r"I\d{3}",year.group()):
+	 			year = re.sub(r"I(\d{3})",r"1\1",year.group())
+	 			return year
+
 	 	return "Unknown" 	 	 	  
 
 	# def find_daty_string(self,string): 
