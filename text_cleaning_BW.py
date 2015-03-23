@@ -227,7 +227,7 @@ if __name__=="__main__":
 	for snippet in snippetyielder("all_vol.txt"):
 		doc = Document(snippet)
 		# print doc.id() + '\t' + doc.raw_text()
-		f.write(doc.id() + '\t'	+ doc.raw_text() + '\n')
+		f.write("ID_" + doc.id() + '\t'	+ doc.raw_text() + '\n')
 		data = {'searchstring': "To " + doc.recipient() + " from " + doc.author() + ", " 
 			+ doc.get_date()
 			, 'author': doc.author()
