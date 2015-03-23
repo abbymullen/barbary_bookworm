@@ -5,7 +5,7 @@ v1.pdf:
 
 v1.txt:v1.pdf
 	pdftotext -f 19 -l 686 v1.pdf
-	
+
 v2.pdf: 
 	curl -o v2.pdf 'http://www.ibiblio.org/anrs/docs/E/E3/nd_barbarywars_v02.pdf'
 
@@ -37,7 +37,7 @@ v6.txt:v6.pdf
 	pdftotext -f 15 -l 612 v6.pdf
 
 all_vol.txt:v1.txt v2.txt v3.txt v4.txt v5.txt v6.txt
-	cat *.txt >> all_vol.txt
+	cat $(wildcard v*.txt) >> all_vol.txt
 
 input.txt jsoncatalog.txt: all_vol.txt
 	python text_cleaning_BW.py
