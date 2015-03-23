@@ -1,6 +1,7 @@
 import re
 import json
 import warnings
+import uuid
 import dateutil.parser
 from datetime import *
 DEFAULT = datetime(1798,1,1)
@@ -150,8 +151,9 @@ class Document():
 		raw_text = re.sub(r"(.*\[*GAO.*)",r"",raw_text) #eliminating citations
 		raw_text = re.sub(r"(.*\[*N D A.*)",r"",raw_text) #eliminating citations
 		raw_text = re.sub(r".*\[*(NA.*)",r"",raw_text) #eliminating citations 	
-		raw_text = re.sub(r"(CL,.*)",r"",raw_text)		
+		raw_text = re.sub(r"(CL,.*)",r"",raw_text)		#eliminating citations
 		raw_text = re.sub(r"NAVAL OP.*",r"",raw_text) #eliminating more headers
+		raw_text = re.sub(r"FROM 1785 TO 1801",r"",raw_text) #eliminating more headers
 		raw_text = re.sub(r"W.*B.*",r"",raw_text) #eliminating more headers
 		raw_text = re.sub(r"\s",r" ", raw_text) #eliminating tabs etc. 	 	  
 		return raw_text
@@ -186,8 +188,8 @@ class Document():
 		return "Unknown" 		
 	
 	def id(self): 	 	 	 	 
-		global n
-		
+		self.id = uuid.uuid4().hex
+		return self.id
 
 
 	def metadata(self): 	 	 	 	 
@@ -205,18 +207,22 @@ class Document():
 n = 1
 
 if __name__=="__main__":
+	f = open("input.txt", "a")
+	j = open("jsoncatalog.txt", "a")
 	for snippet in snippetyielder("v1.txt"):
 		doc = Document(snippet)
-		print doc.id()
-		 # + doc.get_date() + doc.raw_text()[:200] 
-		# f = open("snippet_test.txt", "a")
-		# f.write(doc.get_date() + '\t' + doc.raw_text()[:175] + '\n') #change to integer ascending
-		# f.close() 	
-		# data = [ {'searchstring' : "To " + doc.recipient() + " from " + doc.author() + ", " 
-			# + doc.get_date(), 'author': doc.author(), 'recipient': doc.recipient(), 'date': doc.get_date()
-			#, 'filename': doc.id()
-		# }] #possibly add full text
-		# data_string = json.dumps(data)
-		# j = open("jsoncatalog.txt", "a")
-		# j.write(data_string)
-		# j.close()
+		# print doc.id() + '\t' + doc.raw_text()
+		f.write(doc.id() + '\t'	+ doc.raw_text() + '\n')
+		data = {'searchstring': "To " + doc.recipient() + " from " + doc.author() + ", " 
+			+ doc.get_date()
+			, 'author': doc.author()
+			, 'recipient': doc.recipient()
+			, 'date': doc.get_date()
+			, 'filename': "ID_" + doc.id
+			, 'full_text': doc.raw_text()
+		} 
+		data_string = json.dumps(data)
+		j.write(data_string + '\n')
+		
+	j.close()
+	f.close()
