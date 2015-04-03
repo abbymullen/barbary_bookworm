@@ -189,15 +189,19 @@ class Document():
 
 	def author(self):
 		author = re.search(r"(.*[tT]\s*o)(.*)(from\s)(.+)",self.raw_text()[:150])
-		journal = re.search(r".*[Jj]ournal of ([US86\.,5 ]+) ([\w ]{0,15})[,.]",self.raw_text()[:250])
+		attr_journal = re.search(r".*[Jj]o[nu]rn[sa]l of (Mids.*),.*",self.raw_text()[:150])
+		journal = re.search(r".*[Jj]o[nu]rn[sa]l of ([US86\.,5 ]+) ([\w ]{0,15})[,.]",self.raw_text()[:250])
 		if journal:
 			journal = journal.group(1) + journal.group(2)
 			return journal
+		if attr_journal:
+			attr_journal = attr_journal(1)
+			return "Journal of " + attr_journal
 		if author: 	
 			author = author.group(4) 	
 			author = re.sub(r"(\w+\.*\s*\w*\.*\s*\w+),.*",r"\1",author) #getting rid of following titles 	
 			author = re.sub(r"Captain",r"",author) #getting rid of Captain 	
-			author = re.sub(r"\.",r"_",author) #getting rid of periods in names 
+			author = re.sub(r"\.",r"",author) #getting rid of periods in names 
 			author = re.sub(r"([sS]ecre[a-z]+ of the \w+).*","Secretary of the Navy",author)		
 			return author
 		
@@ -210,7 +214,8 @@ class Document():
 			return "Journal Entry"
 		if recipient: 	
 			recipient = recipient.group(2) 	
-			recipient = re.sub(r"(\w+\s*\w+),.*",r"\1",recipient) #attempting to clear out titles and such 	
+			recipient = re.sub(r"(\w+\s*\w+),.*",r"\1",recipient) #attempting to clear out titles and such
+			recipient = re.sub(r"([sS]ecre[a-z]+ of the \w+).*","Secretary of the Navy",recipient) 	
 			return recipient
 		return "Unknown" 		
 	
@@ -230,8 +235,6 @@ class Document():
 	def does_this_look_suspicious(self):
 		pass
 
-
-n = 1
 
 if __name__=="__main__":
 	f = open("test_input.txt", "a")
