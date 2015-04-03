@@ -206,7 +206,7 @@ class Document():
 			journal = journal.group(1) + journal.group(2)
 			return journal
 		if attr_journal:
-			attr_journal = attr_journal(1)
+			attr_journal = attr_journal.group(1)
 			return "Journal of " + attr_journal
 		if author: 	
 			author = author.group(4) 	
@@ -255,23 +255,23 @@ class Document():
 
 
 if __name__=="__main__":
-	f = open("test_input.txt", "a")
+	f = open("input.txt", "a")
 	j = open("jsoncatalog.txt", "a")
-	for snippet in snippetyielder("v2.txt"):
+	for snippet in snippetyielder("all_vol.txt"):
 		doc = Document(snippet)
 		# print doc.id() + '\t' + doc.raw_text()
-		f.write(doc.recipient() + " / " + doc.author() + '\t' + doc.raw_text()[:250] + '\n')
-		# f.write("ID_" + doc.id() + '\t'	+ doc.raw_text() + '\n')
-	# 	data = {'searchstring': "To " + doc.recipient() + " from " + doc.author() + ", " 
-	# 		+ doc.get_date()
-	# 		, 'author': doc.author()
-	# 		, 'recipient': doc.recipient()
-	# 		, 'date': doc.get_date()
-	# 		, 'filename': "ID_" + doc.id
-	# 		, 'full_text': doc.raw_text()
-	# 	} 
-	# 	data_string = json.dumps(data)
-	# 	j.write(data_string + '\n')
+		# f.write(doc.recipient() + " / " + doc.author() + '\t' + doc.raw_text()[:250] + '\n')
+		f.write("ID_" + doc.id() + '\t'	+ doc.raw_text() + '\n')
+		data = {'searchstring': "To " + doc.recipient() + " from " + doc.author() + ", " 
+			+ doc.get_date()
+			, 'author': doc.author()
+			, 'recipient': doc.recipient()
+			, 'date': doc.get_date()
+			, 'filename': "ID_" + doc.id
+			, 'full_text': doc.raw_text()
+		} 
+		data_string = json.dumps(data)
+		j.write(data_string + '\n')
 		
-	# j.close()
-	# f.close()
+	j.close()
+	f.close()
