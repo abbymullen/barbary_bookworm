@@ -1,2 +1,5 @@
 text_cleaning_BW.pyc
 *.pdf
+input.txt
+bookworm/
+jsoncatalog.txt
