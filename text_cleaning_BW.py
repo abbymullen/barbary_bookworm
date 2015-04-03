@@ -189,7 +189,7 @@ class Document():
 
 	def author(self):
 		author = re.search(r"(.*[tT]\s*o)(.*)(from\s)(.+)",self.raw_text()[:150])
-		journal = re.search(r".*[Jj]ournal of ([US86\. ]+) ([\w ]{0,15})[,.]",self.raw_text()[:250])
+		journal = re.search(r".*[Jj]ournal of ([US86\.,5 ]+) ([\w ]{0,15})[,.]",self.raw_text()[:250])
 		if journal:
 			journal = journal.group(1) + journal.group(2)
 			return journal
@@ -239,7 +239,7 @@ if __name__=="__main__":
 	for snippet in snippetyielder("v2.txt"):
 		doc = Document(snippet)
 		# print doc.id() + '\t' + doc.raw_text()
-		f.write("to " + doc.recipient() + " from " + doc.author() + '\t' + doc.raw_text()[:250] + '\n')
+		f.write(doc.recipient() + " / " + doc.author() + '\t' + doc.raw_text()[:250] + '\n')
 		# f.write("ID_" + doc.id() + '\t'	+ doc.raw_text() + '\n')
 	# 	data = {'searchstring': "To " + doc.recipient() + " from " + doc.author() + ", " 
 	# 		+ doc.get_date()
