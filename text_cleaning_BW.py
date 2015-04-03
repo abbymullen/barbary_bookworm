@@ -33,6 +33,8 @@ def snippetyielder(filename):
 	docbreak = re.sub(r"(\[*HA.*)",r"\1DOCBREAK\n",docbreak)
 	docbreak = re.sub(r"(\[*WDA.*)",r"\1DOCBREAK\n",docbreak)
 	docbreak = re.sub(r"(\[*MCA.*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(.*\[*F\.\s*D\..*)",r"\1DOCBREAK\n",docbreak)
+	docbreak = re.sub(r"(\[*.*GLB.*)",r"\1DOCBREAK\n",docbreak)
 	docbreak = re.sub(r"(DOCBREAK)+",r"DOCBREAK\n",docbreak) 	
 	docbreaks = docbreak.split("DOCBREAK") 	  #yielding one document at a time
 	for doc in docbreaks:
@@ -167,6 +169,8 @@ class Document():
 		raw_text = re.sub(r"(.*\[*N D A.*)",r"",raw_text) #eliminating citations
 		raw_text = re.sub(r".*\[*(NA.*)",r"",raw_text) #eliminating citations 	
 		raw_text = re.sub(r"(CL,.*)",r"",raw_text)		#eliminating citations
+		raw_text = re.sub(r"(.*\[*F\.\s*D\..*)",r"",raw_text) #eliminating citations
+		raw_text = re.sub(r"(\[*.*GLB.*)",r"",raw_text) #eliminating citations
 		raw_text = re.sub(r"NAVAL OP.*",r"",raw_text) #eliminating more headers
 		raw_text = re.sub(r"FROM 1785 TO 1801",r"",raw_text) #eliminating more headers
 		raw_text = re.sub(r"W.*B.*",r"",raw_text) #eliminating more headers
@@ -184,18 +188,26 @@ class Document():
 			return "Unknown"
 
 	def author(self):
-		author = re.search(r"(.*To)(.*)(from\s)(.*)",self.doc)
+		author = re.search(r"(.*[tT]\s*o)(.*)(from\s)(.+)",self.raw_text()[:150])
+		journal = re.search(r".*[Jj]ournal of ([US86\. ]+) ([\w ]{0,15})[,.]",self.raw_text()[:250])
+		if journal:
+			journal = journal.group(1) + journal.group(2)
+			return journal
 		if author: 	
 			author = author.group(4) 	
-			author = re.sub(r"(\w+\s*\w+),.*",r"\1",author) #getting rid of following titles 	
+			author = re.sub(r"(\w+\.*\s*\w*\.*\s*\w+),.*",r"\1",author) #getting rid of following titles 	
 			author = re.sub(r"Captain",r"",author) #getting rid of Captain 	
-			author = re.sub(r"\.",r"_",author) #getting rid of periods in names 		
-			author = re.sub(r" ",r"",author) #Removing spaces to make it fit in the filename better 	
+			author = re.sub(r"\.",r"_",author) #getting rid of periods in names 
+			author = re.sub(r"([sS]ecre[a-z]+ of the \w+).*","Secretary of the Navy",author)		
 			return author
+		
 		return "Unknown"
 
 	def recipient(self):
-		recipient = re.search(r"(To )(.*)(from.*)",self.doc)
+		recipient = re.search(r"([Tt]\s*o )(.*)(from.*)",self.raw_text()[:250])
+		journal = re.search(r".*[Jj]ournal of ([US86\. ]+) ([\w ]{0,15})[,.]",self.raw_text()[:250])
+		if journal:
+			return "Journal Entry"
 		if recipient: 	
 			recipient = recipient.group(2) 	
 			recipient = re.sub(r"(\w+\s*\w+),.*",r"\1",recipient) #attempting to clear out titles and such 	
@@ -222,22 +234,23 @@ class Document():
 n = 1
 
 if __name__=="__main__":
-	f = open("input.txt", "a")
+	f = open("test_input.txt", "a")
 	j = open("jsoncatalog.txt", "a")
-	for snippet in snippetyielder("all_vol.txt"):
+	for snippet in snippetyielder("v2.txt"):
 		doc = Document(snippet)
 		# print doc.id() + '\t' + doc.raw_text()
-		f.write(doc.id() + '\t'	+ doc.raw_text() + '\n')
-		data = {'searchstring': "To " + doc.recipient() + " from " + doc.author() + ", " 
-			+ doc.get_date()
-			, 'author': doc.author()
-			, 'recipient': doc.recipient()
-			, 'date': doc.get_date()
-			, 'filename': "ID_" + doc.id
-			, 'full_text': doc.raw_text()
-		} 
-		data_string = json.dumps(data)
-		j.write(data_string + '\n')
+		f.write("to " + doc.recipient() + " from " + doc.author() + '\t' + doc.raw_text()[:250] + '\n')
+		# f.write("ID_" + doc.id() + '\t'	+ doc.raw_text() + '\n')
+	# 	data = {'searchstring': "To " + doc.recipient() + " from " + doc.author() + ", " 
+	# 		+ doc.get_date()
+	# 		, 'author': doc.author()
+	# 		, 'recipient': doc.recipient()
+	# 		, 'date': doc.get_date()
+	# 		, 'filename': "ID_" + doc.id
+	# 		, 'full_text': doc.raw_text()
+	# 	} 
+	# 	data_string = json.dumps(data)
+	# 	j.write(data_string + '\n')
 		
-	j.close()
-	f.close()
+	# j.close()
+	# f.close()
