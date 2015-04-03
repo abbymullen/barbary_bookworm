@@ -156,6 +156,9 @@ class Document():
 		return self.doc + 'BREAK\n'
 
 	def raw_text(self): 
+		"""
+		This takes a string (a document) and returns a string clean of all headers and citations
+		"""
 		raw_text = re.sub(r"\f.*[0-9]+",r"",self.doc) #using formfeed to get rid of some page numbers/running heads
 		raw_text = re.sub(r"(.*SDA.*)",r"",raw_text) #eliminating citations
 		raw_text = re.sub(r"(.*NDA.*)",r"",raw_text) #eliminating citations
@@ -179,6 +182,9 @@ class Document():
 	
 
 	def get_date(self):
+		"""
+		Right now this takes a string and returns a year; hopefully someday it will return a more specific date.
+		"""
 		head = self.raw_text()[:200] 	 	 
 		parser = Regexdate(head) 	 		
 		try:
@@ -188,6 +194,11 @@ class Document():
 			return "Unknown"
 
 	def author(self):
+		"""
+		Takes a string--the first bit of the document--and returns the author
+		Accomplishes this through extracting data from formulaic headings on documents
+		Tries to account for non-letter documents such as daily journal entries
+		"""
 		author = re.search(r"(.*[tT]\s*o)(.*)(from\s)(.+)",self.raw_text()[:150])
 		attr_journal = re.search(r".*[Jj]o[nu]rn[sa]l of (Mids.*),.*",self.raw_text()[:150])
 		journal = re.search(r".*[Jj]o[nu]rn[sa]l of ([US86\.,5 ]+) ([\w ]{0,15})[,.]",self.raw_text()[:250])
@@ -208,6 +219,10 @@ class Document():
 		return "Unknown"
 
 	def recipient(self):
+		"""
+		Takes a string, the first bit of a document, and returns the recipient of the document if there is one
+		Tries to account for non-letter documents by recording an alternate "recipient"
+		"""
 		recipient = re.search(r"([Tt]\s*o )(.*)(from.*)",self.raw_text()[:250])
 		journal = re.search(r".*[Jj]ournal of ([US86\. ]+) ([\w ]{0,15})[,.]",self.raw_text()[:250])
 		if journal:
@@ -219,7 +234,10 @@ class Document():
 			return recipient
 		return "Unknown" 		
 	
-	def id(self): 	 	 	 	 
+	def id(self): 	
+		"""
+		randomly generated ID
+		""" 	 	 	 
 		self.id = uuid.uuid4().hex
 		return self.id
 
